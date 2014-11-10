@@ -49,8 +49,7 @@ setup(
     license="BSD",
     classifiers=[
         "Development Status :: 5 - Production/Stable",
-        "Environment :: Development",
-        "Intended Audience :: System Administrators",
+        "Intended Audience :: Developers",
         "License :: OSI Approved :: BSD License",
         "Programming Language :: Python",
     ],
