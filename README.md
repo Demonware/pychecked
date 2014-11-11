@@ -5,7 +5,8 @@ Python Type Checking Library.
 
 Python3.0 introduced the acceptance of [PEP3107](http://legacy.python.org/dev/peps/pep-3107); which gives python developers the option of annotating their funtion signatures. What it very distinctly does not deliver, is any enforcement of those annotations. Pychecked provides a wrapper, `type_checked` which you can decorate your annotated functions with to enforce those annotations. If the object being passed in does not match the expected type, pychecked will try to coerce the object into the correct type. This behavior is adjustable, through the `Config` object in pychecked, or by passing `coerce=False` as a kwarg to the wrap function `type_checked`. Note that the wrap `type_checked`; which lives in the `pychecked.type_checking` module, is exported as the top level module callable as well. Meaning, using this is as simple as:
 
-<pre>import pychecked
+```python
+import pychecked
 
 @pychecked
 def my_function(something:str):
@@ -13,42 +14,52 @@ def my_function(something:str):
 
 my_function(11.1)
 my_function(bytes("hello", "utf-8"))
-my_function(False)</pre>
+my_function(False)
+```
 
 Examples
 ========
 
 Say you had the following function, which you only ever wanted to accept integers:
 
-<pre>@pychecked
+```python
+@pychecked
 def and_one(number:int):
-    return number + 1</pre>
+    return number + 1
+```
 
 Simple, right? What if it was a list of integers though? Easy!
 
-<pre>@pychecked
+```python
+@pychecked
 def average(numlist:[int]):
-    return (sum(numlist) / len(numlist)) * 100</pre>
+    return (sum(numlist) / len(numlist)) * 100
+```
 
 Neat! OK. Tricky one now, I want to accept a dictionary of {int: string}
 
-<pre>@pychecked
+```python
+@pychecked
 def my_func(input_obj:{int: str}):
     for number, string in input_obj.items():
         assert isinstance(number, int)
-        assert isinstance(string, str)</pre>
+        assert isinstance(string, str)
+```
 
 What if you want to accept a list of tuples? Sure thing.
 
-<pre>@pychecked
+```python
+@pychecked
 def accept_many(things:[(int, int, bool, str, MyCustomObject)]):
-    pass</pre>
+    pass
+```
 
 In the above instance, you can see how even custom objects can be used in the type checking. This can be very handy if you know that you're not passing the correct type and you want to shortcut the creation of the correct objects for the function.
 
 As an example, consider a game object, and a function which adds player objects to that game:
 
-<pre>class Game(object):
+```python
+class Game(object):
     def __init__(self):
         self.players = []
 
@@ -64,14 +75,16 @@ if __name__ == "__main__":
     game = Game()
     add_player_to_game(game, "paul")
     add_player_to_game(game, "rufus")
-    print(game.players)</pre>
+    print(game.players)
+```
 
 
 So now, what happens when things go wrong. Sometimes, it will be impossible to coerce the input into the requested type. In these cases a `TypeError` will be raised by `pychecked`. A `ValueError` will be raised if the type requested isn't actually a `type` type or callable.
 
 An example of failure and how to overcome it:
 
-<pre>>>> import pychecked
+```python
+>>> import pychecked
 >>> class MyClass(object):
 ...   def __init__(self, x, y):
 ...     self.x = x
@@ -103,11 +116,13 @@ TypeError: 2 is of type int, expecting MyClass.
 ... except TypeError:
 ...   print("errored")
 ...
-errored</pre>
+errored
+```
 
 Easy, right? Sort of. Having an object that requires multiple args in it's init will always be difficult to coerce into. You can make a proxy/subclass object that can receive a single arg and instatiate the base object with other defaults or using the single arg (exploding a tuple, for instance). There's a gotcha in that you need to modify the isinstance magic method to respond True to the base class as well so the proxies arnt reinstantiated with a base object being passed in. An example:
 
-<pre>import pychecked
+```python
+import pychecked
 
 class XYObject(object):
     def __init__(self, x, y):
@@ -131,7 +146,8 @@ def my_function(something:XYObjectProxy):
 orig = XYObject(1, 2)
 my_function(orig)
 ret = my_function((1, 1))
-my_function(ret)</pre>
+my_function(ret)
+```
 
 
 Config
@@ -143,7 +159,8 @@ This is so that if you want your application to raise `TypeErrors` on annotation
 
 An example:
 
-<pre>from pychecked.type_checking import type_checked, Config
+```python
+from pychecked.type_checking import type_checked, Config
 
 @type_checked
 def do_things(name:str):
@@ -156,7 +173,8 @@ def main():
     do_things(123)  # does not raise
 
 if __name__ == "__main__":
-    main()</pre>
+    main()
+```
 
 As you can see in the above, you can set `Config` options through kwargs to the wrap, or through `pychecked.Config.set`.
 
