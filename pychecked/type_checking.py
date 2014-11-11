@@ -172,12 +172,28 @@ def _do_validation(type_, value):
     """
 
     def _raise_error():
+        if hasattr(type_, "__name__"):
+            type_name = type_.__name__
+        elif hasattr(type_, "__iter__"):
+            type_name = "a {} of {}".format(
+                type_.__class__.__name__,
+                ", ".join([subtype.__name__ for subtype in type_]),
+            )
+        else:
+            type_name = type_.__class__.__name__
+
         raise TypeError("{} is of type {}, expecting {}.".format(
-            value, type(value).__name__, type_.__name__))
+            value, type(value).__name__, type_name))
 
     def _log(message):
         if Config.get("debug"):
             print(message, file=sys.stderr)
+
+    # need to check for built in syntically defined type first
+    if type_ == []:
+        type_ = list
+    elif type_ == {}:
+        type_ = dict
 
     # short circut for builtins and metaclasses
     if isinstance(type_, type):
@@ -195,13 +211,25 @@ def _do_validation(type_, value):
             key_type = key_
             value_type = value_
             break
+        else:
+            # only required to match value to dict, not dict key/values as well
+            return value
 
         validated_values = {}
         for key_, value_ in value.items():
             validated_values[_do_validation(key_type, key_)] = _do_validation(
                 value_type, value_)
         return type(type_)(validated_values)
-    elif isinstance(type_, (list, tuple)) and isinstance(value, (list, tuple)):
+    elif isinstance(type_, (list, tuple)):
+        if not isinstance(value, (list, tuple)):
+            if Config.get("coerce"):
+                try:
+                    value = list(value)
+                except (ValueError, TypeError) as error:
+                    _log(error)
+                    _raise_error()
+            else:
+                _raise_error()
         if len(type_) == len(value):
             validated_values = []
             for _type, _value in zip(type_, value):
@@ -233,11 +261,6 @@ def _do_validation(type_, value):
                     _log(error_)
             _raise_error()
     elif type(type_) in [list, tuple]:  # if we make it this far it's an error
-        raise TypeError("{} is of type {}, expecting a {} of {}.".format(
-            value,
-            type(value).__name__,
-            type_.__class__.__name__,
-            ", ".join([t.__name__ for t in type_]),
-        ))
+        _raise_error()
     else:
         raise ValueError("type {} is not a type or callable.".format(type_))

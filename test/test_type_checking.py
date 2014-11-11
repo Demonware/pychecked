@@ -233,6 +233,7 @@ def test_noncallable():
     with pytest.raises(ValueError) as error:
         _run_test(True)
 
+
 def test_kwarg_nonbool():
     """Config values are all booleans."""
 
@@ -440,6 +441,60 @@ def test_bytes_to_string():
         assert something == "yep"
 
     _run_test(bytes("yep", "utf-8"))
+
+
+def test_empty_dict():
+    """Test the case of requesting a dict with no further spec."""
+
+    @type_checked
+    def _run_test(thing:{}):
+        assert isinstance(thing, dict)
+
+    _run_test({"foo": "bar"})
+
+
+def test_empty_dict_by_name():
+    """Same as the test above, but with the name dict rather than {} syntax."""
+
+    @type_checked
+    def _run_test(thing:dict):
+        assert isinstance(thing, dict)
+
+    _run_test({"baz": True})
+
+
+def test_empty_dict_failure():
+    """Ensure things which cannot coerce to dictionaries don't."""
+
+    @type_checked
+    def _run_test(thing:{}): pass
+
+    with pytest.raises(TypeError):
+        _run_test(1)
+
+
+def test_empty_dict_coerce():
+    """Ensure things which can be coerced to dictionaries are."""
+
+    @type_checked
+    def _run_test(thing:{}):
+        assert isinstance(thing, dict)
+
+    _run_test([("something", "is_true")])
+
+
+def test_dict_keys_to_list():
+    """Ensure we can convert dict.keys()/values() to a list."""
+
+    @type_checked
+    def _run_test(thing:[str]):
+        assert isinstance(thing, list)
+        assert "foo" in thing
+        assert "bar" in thing
+        assert len(thing) == 2
+
+    _run_test({"foo": 1, "bar": 2}.keys())
+    _run_test({1: "foo", 2: "bar"}.values())
 
 
 if __name__ == "__main__":
