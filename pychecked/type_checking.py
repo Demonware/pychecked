@@ -105,6 +105,9 @@ def type_checked(func=None, **kwargs):
         Any of the Config options can be passed at any time as kwargs.
     """
 
+    if func is None:
+        return functools.partial(type_checked, **kwargs)
+
     @functools.wraps(func)
     def _type_checked(*args, **kwargs):
         """Go through the function's passed arguments and validate them."""
@@ -142,9 +145,6 @@ def type_checked(func=None, **kwargs):
 
         kwargs.update(v_kwargs)
         return func(*v_args, **kwargs)
-
-    if func is None:
-        return functools.partial(type_checked, **kwargs)
 
     # allows the passing through kwargs to the wrap to adjust config that way
     for key, value in kwargs.items():
