@@ -9,7 +9,7 @@ object Config.
 
 Please see the tests in the test directory or the README.md for usage examples.
 
-Copyright (c) 2014, Activision Publishing, Inc.
+Copyright (c) 2015, Activision Publishing, Inc.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
