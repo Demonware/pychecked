@@ -39,7 +39,7 @@ from pychecked.type_checking import type_checked
 class TypeChecked(object):
     """Some magic to make this module callable as the wrap @type_checked."""
 
-    __version__ = "0.0.4"
+    __version__ = "0.0.5"
 
     def __call__(self, *args, **kwargs):
         return type_checked(*args, **kwargs)

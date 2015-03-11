@@ -1,14 +1,22 @@
 """pychecked's setup.py."""
 
 
-import importlib
+import io
+import re
+
 from setuptools import setup
-from setuptools import find_packages
 from setuptools.command.test import test as TestCommand
 
 
-pychecked = importlib.import_module("pychecked")
-type_checking = importlib.import_module("pychecked.type_checking")
+def find_version(filename):
+    """Uses re to pull out the assigned value to __version__ in filename."""
+
+    with io.open(filename, encoding="utf-8") as version_file:
+        version_match = re.search(r'__version__ = [\'"]([^\'"]*)[\'"]',
+                                  version_file.read(), re.M)
+    if version_match:
+        return version_match.group(1).strip()
+    return "0.0-version-unknown"
 
 
 class PyTest(TestCommand):
@@ -36,15 +44,15 @@ class PyTest(TestCommand):
 
 setup(
     name="pychecked",
-    version=pychecked.__version__,
+    version=find_version("pychecked/__init__.py"),
     author="Adam Talsma",
     author_email="adam@demonware.net",
-    packages=find_packages(exclude="test"),
+    packages=["pychecked"],
     cmdclass={"test": PyTest},
     tests_require=["pytest", "pytest-cov"],
     url="https://github.com/Demonware/pychecked",
-    description="Python3+ type checking for annotated function signatures",
-    long_description=type_checking.__doc__,
+    description="Python3+ type checking for annotated function signatures.",
+    long_description="Python type checking for annotated function signatures.",
     download_url="https://github.com/Demonware/pychecked",
     license="BSD",
     classifiers=[
