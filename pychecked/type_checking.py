@@ -222,11 +222,14 @@ def _do_validation(type_, value):
     elif isinstance(type_, (list, tuple)):
         if not isinstance(value, (list, tuple)):
             if Config.get("coerce"):
-                try:
-                    value = list(value)
-                except (ValueError, TypeError) as error:
-                    _log(error)
-                    _raise_error()
+                if isinstance(value, (str, int, bytes, complex)):
+                    value = [value]
+                else:
+                    try:
+                        value = list(value)
+                    except (ValueError, TypeError) as error:
+                        _log(error)
+                        _raise_error()
             else:
                 _raise_error()
         if len(type_) == len(value):

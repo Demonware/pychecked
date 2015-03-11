@@ -273,7 +273,7 @@ def test_nested_fail():
         _run_test(12)
 
     assert error.exconly() == (
-        "TypeError: 12 is of type int, expecting a tuple of float, float."
+        "TypeError: Argument length mismatch. Expected a tuple of float, float."
     )
 
 
@@ -495,6 +495,36 @@ def test_dict_keys_to_list():
 
     _run_test({"foo": 1, "bar": 2}.keys())
     _run_test({1: "foo", 2: "bar"}.values())
+
+
+def test_string_to_listed():
+    """Ensure a single string is listed but not split."""
+
+    @type_checked
+    def _run_test(thing:[str]=None):
+        assert thing == ["words"]
+
+    _run_test("words")
+
+
+def test_int_to_listed():
+    """Ensure a single stringed integer is properly converted."""
+
+    @type_checked
+    def _run_test(thing:[int]=None):
+        assert thing == [15]
+
+    _run_test("15.0")
+
+
+def test_complex_to_tuple():
+    """Ensure complex numbers can be coerced into tuples."""
+
+    @type_checked
+    def _run_test(thing:(complex,)):
+        assert thing == (complex(15, 2),)
+
+    _run_test(complex(15, 2))
 
 
 if __name__ == "__main__":
